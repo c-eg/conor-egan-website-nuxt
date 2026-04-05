@@ -1,0 +1,19 @@
+$colour-primary: #FFCD04;
+$colour-secondary: #35ded4;
+
+$colour-primary-subtle: rgba($colour-primary, 0.15);
+$colour-primary-subtle-hover: rgba($colour-primary, 0.20);
+$colour-secondary-subtle: rgba($colour-secondary, 0.15);
+$colour-secondary-subtle-hover: rgba($colour-secondary, 0.20);
+
+$colour-bg-start: #314C63;
+$colour-bg-end: #1C3245;
+$colour-bg-gradient: radial-gradient(circle, $colour-bg-start 0%, $colour-bg-end 100%);
+
+$colour-text-primary: #FFFFFF;
+$colour-text-muted: rgba(#FFFFFF, 0.9);
+
+$colour-surface: rgba(#FFFFFF, 0.04);
+
+$colour-border: rgba(#FFFFFF, 0.2);
+$colour-border-hover: rgba(#FFFFFF, 0.3);

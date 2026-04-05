@@ -1,0 +1,45 @@
+html {
+  background: $colour-bg-gradient $colour-bg-end;
+  scrollbar-gutter: stable;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+}
+
+body {
+  h1 {
+    font-size: 5em;
+  }
+
+  h2 {
+    font-size: 3em;
+  }
+
+  h3 {
+    font-size: 2em;
+  }
+
+  h4 {
+    font-size: 1em;
+  }
+
+  h5 {
+    font-size: 0.5em;
+  }
+
+  h6 {
+    font-size: 0.25em;
+  }
+
+  p {
+    font-size: 1.3em;
+  }
+
+  h1, h2, h3, h4, h5, h6, p {
+    color: $colour-text-primary;
+  }
+
+  font-family: 'Roboto', sans-serif, system-ui;
+}

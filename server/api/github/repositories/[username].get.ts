@@ -24,8 +24,10 @@ export default defineCachedEventHandler(async (event) => {
     const octokitRepositories = await getRepositories(runtimeConfig.githubApiToken, username)
         .catch(handleGitHubError);
 
+    const activeRepositories = octokitRepositories.filter((repository) => !repository.archived);
+
     const repositories: Repository[] = await Promise.all(
-        octokitRepositories.map(async (octokitRepository) => {
+        activeRepositories.map(async (octokitRepository) => {
             const languages = await getRepositoryLanguages(
                 runtimeConfig.githubApiToken,
                 username,

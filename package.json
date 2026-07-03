@@ -10,7 +10,7 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
-    "@octokit/request": "^10.0.10",
+    "@octokit/request": "^10.0.11",
     "@pinia/nuxt": "0.11.3",
     "nuxt": "^4.4.7",
     "zod": "^4.4.3"

@@ -13,7 +13,7 @@
     "@octokit/request": "^10.0.11",
     "@pinia/nuxt": "0.11.3",
     "nuxt": "^4.5.1",
-    "zod": "^4.4.3"
+    "zod": "^4.5.2"
   },
   "devDependencies": {
     "sass": "^1.102.0"

@@ -1,4 +1,3 @@
-import { useRuntimeConfig } from "#imports";
 import { z } from "zod";
 import { getActiveRepositories } from "#server/utils/github/github-repositories";
 

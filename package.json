@@ -5,6 +5,7 @@
   "scripts": {
     "build": "nuxt build",
     "dev": "nuxt dev",
+    "dev:no-api-mocks": "nuxt dev --envName no-api-mocks",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "test": "vitest run",
@@ -23,6 +24,7 @@
     "@testing-library/vue": "^8.1.0",
     "@vue/test-utils": "^2.5.1",
     "happy-dom": "^21.0.4",
+    "msw": "^3.0.3",
     "sass": "^1.105.1",
     "typescript": "^5.9.3",
     "vitest": "^5.0.5",

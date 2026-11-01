@@ -1,4 +1,20 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
+import type { NuxtConfig } from "nuxt/schema";
+
+const apiMocks = {
+  runtimeConfig: {
+    public: {
+      githubUser: "mock-user"
+    }
+  },
+  nitro: {
+    plugins: ["~~/api-mocks/api-mocks-plugin"],
+    devStorage: {
+      cache: { driver: "memory" }
+    }
+  }
+} satisfies NuxtConfig;
+
 export default defineNuxtConfig({
   runtimeConfig: {
     githubApiToken: "",
@@ -6,6 +22,7 @@ export default defineNuxtConfig({
       githubUser: ""
     }
   },
+  $development: apiMocks,
   vite: {
     css: {
       preprocessorOptions: {
@@ -18,7 +35,7 @@ export default defineNuxtConfig({
   css: ['~/assets/scss/main.scss'],
   typescript: {
     serverTsConfig: {
-      include: ["../test/unit/**/*"]
+      include: ["../test/unit/**/*", "../api-mocks/**/*"]
     },
     nodeTsConfig: {
       include: ["../vitest.config.ts"]

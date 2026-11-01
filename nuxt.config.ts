@@ -16,6 +16,14 @@ export default defineNuxtConfig({
     }
   },
   css: ['~/assets/scss/main.scss'],
+  typescript: {
+    serverTsConfig: {
+      include: ["../test/unit/**/*"]
+    },
+    nodeTsConfig: {
+      include: ["../vitest.config.ts"]
+    }
+  },
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true }
 });

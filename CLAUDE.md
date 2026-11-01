@@ -16,7 +16,7 @@ The package manager is pnpm.
 - `pnpm test test/unit/github-api.test.ts` runs one file, `pnpm test --project unit` (or `nuxt`) runs one project, and `pnpm test -t "<test name>"` runs the tests whose name matches.
 - `pnpm typecheck`: runs `nuxt typecheck` (`vue-tsc -b --noEmit` over Nuxt's generated tsconfigs). It covers the app, the server, both test folders and `vitest.config.ts`. Vitest does not type-check, so run this as well as the tests.
 
-No linter is configured. CI (`.github/workflows/test.yml`) runs `pnpm test` on pull requests and on pushes to `main`. It does not run the typecheck.
+No linter is configured. CI (`.github/workflows/test.yml`) runs `pnpm test` and then `pnpm typecheck` on pull requests and on pushes to `main`.
 
 ## Configuration
 

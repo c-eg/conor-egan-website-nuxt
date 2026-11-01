@@ -6,7 +6,7 @@ Personal portfolio site for Conor Egan ([www.conoregan.co.uk](https://www.conore
 
 ## Commands
 
-The package manager is pnpm.
+The package manager is pnpm 11, which CI also uses (`version: 11` in the workflow).
 
 - `pnpm install`: installs dependencies. `postinstall` runs `nuxt prepare`, which generates `.nuxt/` (the tsconfig references depend on it).
 - `pnpm dev`: starts the dev server
@@ -26,6 +26,15 @@ Both values come from `runtimeConfig` in `nuxt.config.ts` and are empty by defau
 - `NUXT_PUBLIC_GITHUB_USER`: the GitHub username whose repositories appear on `/projects`
 
 `vue` is a direct dependency, at the version Nuxt already installs. Nothing imports it by name, but under pnpm IntelliJ only detects Vue when it is listed in `package.json`. Without it, IntelliJ checks `.ts` files with its plain TypeScript service and reports TS2307 on every `.vue` import. Do not add `vue-router` directly. Both were removed in `baa1f39` to fix the Vercel build, and if a Vercel build breaks, check the `vue` dependency first.
+
+pnpm 11 enforces two supply-chain rules, and both make `pnpm install` fail rather than warn:
+
+- **Build scripts:** a dependency's build script runs only if `allowBuilds` in `pnpm-workspace.yaml` allows it, and an unlisted one fails the install with `ERR_PNPM_IGNORED_BUILDS`. `esbuild` and `@parcel/watcher` are denied.
+  - Both ship prebuilt binaries in platform packages, and their scripts add nothing here.
+  - esbuild's JS API, which Vite and Nuxt use, resolves the platform binary itself. Its script only checks the version and, on Linux and macOS, speeds up the `esbuild` CLI.
+  - `@parcel/watcher`'s script does nothing unless `npm_config_build_from_source` is `true`.
+  - When a new dependency brings a build script, read what it does before setting it in `allowBuilds`, for example with `pnpm approve-builds '!<pkg>'`.
+- **Release age:** pnpm won't install a version published less than a day ago (`minimumReleaseAge` defaults to 1440 minutes), and it checks existing lockfile entries too. If `pnpm install` fails with `ERR_PNPM_MINIMUM_RELEASE_AGE_VIOLATION`, re-resolve the affected dependency to an older version within its range rather than excluding it from the check.
 
 ## Architecture
 

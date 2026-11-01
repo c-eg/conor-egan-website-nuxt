@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { useGithubStore } from "~/stores/github";
 import RepositoryCard from "~/components/repositories/repository-card.vue";
+import { useRepositories } from "~/composables/repositories/use-repositories";
 import { useRepositoryFilters } from "~/composables/repositories/use-repository-filters";
 import { useRepositorySort } from "~/composables/repositories/use-repository-sort";
 import { RepositorySortOptions } from "~/utils/repositories/repository-sort-options";
@@ -12,20 +12,15 @@ useHead({
   ]
 });
 
-const loaded = ref<boolean>(false);
-const githubStore = useGithubStore();
-await githubStore.isInitialised();
-loaded.value = true;
-
-const { hasError, repositories } = storeToRefs(githubStore);
+const { data: repositories, status } = useRepositories();
 
 const { filteredRepositories, repositoryFilterOptions, selectedFilterOption } = useRepositoryFilters(repositories);
 const { sortedRepositories, selectedSortOption } = useRepositorySort(filteredRepositories);
 </script>
 
 <template>
-  <p v-if="!loaded">Loading projects...</p>
-  <p v-else-if="hasError">There was an error loading the projects.</p>
+  <p v-if="status === 'pending'">Loading projects...</p>
+  <p v-else-if="status === 'error'">There was an error loading the projects.</p>
   <main v-else>
     <template v-if="repositories.length > 0">
       <h1>Here are some of my <span>projects</span></h1>

@@ -1,7 +1,6 @@
-import type { Repository } from "~/shared/types/github";
 import { useRuntimeConfig } from "#imports";
 import { z } from "zod";
-import { getRepositories, getRepositoryLanguages } from "#server/utils/github-api";
+import { getActiveRepositories } from "#server/utils/github/github-repositories";
 
 const contentSchema = z.object({
     username: z.string().min(1)
@@ -21,30 +20,8 @@ export default defineCachedEventHandler(async (event) => {
 
     const { username } = params.data;
 
-    const octokitRepositories = await getRepositories(runtimeConfig.githubApiToken, username)
+    return getActiveRepositories(runtimeConfig.githubApiToken, username)
         .catch(handleGitHubError);
-
-    const activeRepositories = octokitRepositories.filter((repository) => !repository.archived);
-
-    const repositories: Repository[] = await Promise.all(
-        activeRepositories.map(async (octokitRepository) => {
-            const languages = await getRepositoryLanguages(
-                runtimeConfig.githubApiToken,
-                username,
-                octokitRepository.name
-            ).catch(handleGitHubError);
-
-            return {
-                url: octokitRepository.html_url,
-                name: octokitRepository.name,
-                description: octokitRepository.description,
-                stars: octokitRepository.stargazers_count ?? 0,
-                languages: Object.keys(languages)
-            } satisfies Repository;
-        })
-    );
-
-    return repositories;
 }, {
     maxAge: 300
 });

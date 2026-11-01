@@ -106,6 +106,10 @@ Fake API responses with `registerEndpoint(url, { handler, once: true })`. Build 
 
 `test/nuxt/fixtures/repository.ts` has `createRepository` and `namesOf` for building `Repository` test data.
 
+### In the browser
+
+The `verify-in-browser` skill (`.claude/skills/verify-in-browser/`) starts the site in the background and drives it with Playwright. It takes screenshots and ARIA snapshots, runs scripted clicks, and reports console errors, hydration warnings and failed requests. `playwright`, the Playwright library, is a dev dependency only for this skill; the project has no Playwright test suite. Playwright's docs say to install `playwright` for library use. The library has no web-first `expect` (that is part of the `@playwright/test` runner), so scenarios wait with `locator.waitFor()` and assert with `node:assert`. The skill writes its server log, screenshots and scenarios to `.playwright/`, which is gitignored. If Chromium is missing, run `pnpm exec playwright install chromium`.
+
 ## TypeScript
 
 Nuxt generates the tsconfigs in `.nuxt/`, and the root `tsconfig.json` only references them. `test/nuxt/` is in the app tsconfig by default. `nuxt.config.ts` adds `test/unit/` and `api-mocks/` to the server tsconfig and `vitest.config.ts` to the node tsconfig through `typescript.serverTsConfig` and `typescript.nodeTsConfig` (paths are relative to `.nuxt/`). Any new TypeScript file outside `app/`, `server/` and those folders needs adding there too. Otherwise editors check it with TypeScript's defaults (for example, TS2705 on async functions) and `pnpm typecheck` skips it.

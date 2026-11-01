@@ -25,3 +25,6 @@ logs
 
 # Intellij
 .idea/
+
+# Playwright verification output
+.playwright/

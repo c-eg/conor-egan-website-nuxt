@@ -51,7 +51,7 @@ Both values come from `runtimeConfig` in `nuxt.config.ts` and are empty by defau
 
 - SCSS throughout. Components use `<style scoped lang="scss">`.
 - Vite's `additionalData` (`nuxt.config.ts`) injects `app/assets/scss/_colours.scss` into every SCSS block, so the `$colour-*` variables work anywhere without an `@use`. Use these variables instead of hard-coded colours.
-- Global element styles live in `app/assets/scss/main.scss`.
+- Global element styles live in `app/assets/scss/main.scss`, along with utility classes such as `.visually-hidden` (text for screen readers only).
 - Layouts are mobile-first, with `min-width` breakpoints at `480px` and `768px`.
 
 ## Testing

@@ -1,5 +1,7 @@
 <script setup lang="ts">
+import Skeleton from "~/components/core/skeleton.vue";
 import RepositoryCard from "~/components/repositories/repository-card.vue";
+import RepositoryCardSkeleton from "~/components/repositories/repository-card-skeleton.vue";
 import { useRepositories } from "~/composables/repositories/use-repositories";
 import { useRepositoryFilters } from "~/composables/repositories/use-repository-filters";
 import { useRepositorySort } from "~/composables/repositories/use-repository-sort";
@@ -16,10 +18,24 @@ const { data: repositories, status } = useRepositories();
 
 const { filteredRepositories, repositoryFilterOptions, selectedFilterOption } = useRepositoryFilters(repositories);
 const { sortedRepositories, selectedSortOption } = useRepositorySort(filteredRepositories);
+
+const skeletonCardCount = 3;
 </script>
 
 <template>
-  <p v-if="status === 'pending'">Loading projects...</p>
+  <main v-if="status === 'pending'">
+    <p class="visually-hidden" role="status">Loading projects...</p>
+    <skeleton class="heading-skeleton"/>
+
+    <div class="filters">
+      <skeleton class="filter-skeleton"/>
+      <skeleton class="filter-skeleton"/>
+    </div>
+
+    <div class="projects">
+      <repository-card-skeleton v-for="card in skeletonCardCount" :key="card"/>
+    </div>
+  </main>
   <p v-else-if="status === 'error'">There was an error loading the projects.</p>
   <main v-else>
     <template v-if="repositories.length > 0">
@@ -68,11 +84,21 @@ main {
   margin: 0 auto;
 
   h1 {
-    font-size: 2em;
-
     span {
       color: $colour-primary;
     }
+  }
+
+  h1,
+  .heading-skeleton {
+    font-size: 2em;
+  }
+
+  .heading-skeleton {
+    width: 13em;
+    max-width: 100%;
+    height: 1.2em;
+    margin: 0.67em 0;
   }
 
   .filters {
@@ -93,6 +119,11 @@ main {
       width: 1.1em;
       height: 1.1em;
       flex-shrink: 0;
+    }
+
+    .filter-skeleton {
+      width: 13.6em;
+      height: 2.8em;
     }
   }
 
@@ -135,7 +166,8 @@ main {
   }
 
   @media (min-width: 480px) {
-    h1 {
+    h1,
+    .heading-skeleton {
       font-size: 2.5em;
     }
   }
@@ -143,7 +175,8 @@ main {
   @media (min-width: 768px) {
     padding: 2em 1em;
 
-    h1 {
+    h1,
+    .heading-skeleton {
       font-size: 3em;
     }
   }

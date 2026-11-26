@@ -25,12 +25,13 @@ function projectNames(): string[] {
 }
 
 describe("projects page", () => {
-    it("shows a loading message while the projects load", async () => {
+    it("announces that the projects are loading while they load", async () => {
         respondWithRepositories(() => new Promise(() => {}));
 
         await renderSuspended(ProjectsPage);
 
-        expect(screen.getByText("Loading projects...")).toBeTruthy();
+        expect(screen.getByRole("status").textContent).toBe("Loading projects...");
+        expect(screen.queryAllByRole("heading")).toEqual([]);
     });
 
     it("shows an error message when the projects fail to load", async () => {

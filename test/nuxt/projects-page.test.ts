@@ -41,7 +41,8 @@ describe("projects page", () => {
 
         await renderSuspended(ProjectsPage);
 
-        expect(await screen.findByText("There was an error loading the projects.")).toBeTruthy();
+        const alert = await screen.findByRole("alert");
+        expect(alert.textContent).toContain("Sorry, there was an error loading the projects. Please come back later.");
     });
 
     it("shows a message when there are no projects", async () => {

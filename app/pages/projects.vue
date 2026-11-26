@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import Notice from "~/components/core/containers/notice.vue";
 import Skeleton from "~/components/core/skeleton.vue";
 import RepositoryCard from "~/components/repositories/repository-card.vue";
 import RepositoryCardSkeleton from "~/components/repositories/repository-card-skeleton.vue";
@@ -36,7 +37,12 @@ const skeletonCardCount = 3;
       <repository-card-skeleton v-for="card in skeletonCardCount" :key="card"/>
     </div>
   </main>
-  <p v-else-if="status === 'error'">There was an error loading the projects.</p>
+  <main v-else-if="status === 'error'">
+    <notice class="error-notice" role="alert">
+      <h1>Something went <span>wrong</span></h1>
+      <p>Sorry, there was an error loading the projects. Please come back later.</p>
+    </notice>
+  </main>
   <main v-else>
     <template v-if="repositories.length > 0">
       <h1>Here are some of my <span>projects</span></h1>
@@ -155,6 +161,10 @@ main {
       color: $colour-text-primary;
       background-color: $colour-bg-end;
     }
+  }
+
+  .error-notice {
+    margin-top: 2em;
   }
 
   .projects {

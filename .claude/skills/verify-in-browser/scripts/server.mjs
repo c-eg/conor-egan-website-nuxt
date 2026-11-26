@@ -2,10 +2,11 @@ import { spawn, spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, openSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { createServer } from "node:net";
 import { resolve } from "node:path";
-import { parseArgs } from "node:util";
+import { parseArgs, stripVTControlCharacters } from "node:util";
 import { browseScript, exitUnlessRunFromProjectRoot, outputDirectory, projectRoot, readServerState, serverLogFile, serverScript, serverStateFile } from "./paths.mjs";
 
 const nuxtCli = resolve(projectRoot, "node_modules/nuxt/bin/nuxt.mjs");
+const isWindows = process.platform === "win32";
 const apiMocksMode = "api-mocks";
 const noApiMocksMode = "no-api-mocks";
 const startupTimeoutMs = 180_000;
@@ -14,6 +15,8 @@ const statusRequestTimeoutMs = 10_000;
 const nuxtStartingUpStatus = 503;
 const logLinesShownOnFailure = 40;
 const nuxtDevLockMessage = "Another Nuxt dev server is already running";
+const nitroBuildErrorPattern = /^\[nitro\]\s+ERROR\s/m;
+const nuxtProgressLinePattern = /^\S+ Building server \(/;
 
 const usage = `Usage: node ${serverScript} start [--no-api-mocks] | status | stop`;
 
@@ -46,7 +49,7 @@ async function start() {
         return;
     }
     if (running) {
-        killProcessTree(running.pid);
+        stopIfProjectDevServer(running.pid);
     }
 
     if (!existsSync(nuxtCli)) {
@@ -85,9 +88,11 @@ function stop() {
         console.log("No server is running.");
         return;
     }
-    killProcessTree(running.pid);
+    const stopped = stopIfProjectDevServer(running.pid);
     rmSync(serverStateFile, { force: true });
-    console.log(`Stopped the ${running.mode} server at ${running.url}`);
+    console.log(stopped
+        ? `Stopped the ${running.mode} server at ${running.url}`
+        : `The ${running.mode} server at ${running.url} was no longer running.`);
 }
 
 async function status() {
@@ -121,11 +126,18 @@ async function waitForServer(url, server) {
         if (homeStatus !== undefined && homeStatus !== nuxtStartingUpStatus) {
             return homeStatus;
         }
+        if (nitroBuildErrorPattern.test(readServerLog())) {
+            abortStartup(server, `The server failed to build:\n${tailOfLog()}`);
+        }
         await new Promise((resolveDelay) => setTimeout(resolveDelay, startupPollIntervalMs));
     }
+    abortStartup(server, `The server did not respond within ${startupTimeoutMs / 1000}s:\n${tailOfLog()}`);
+}
+
+function abortStartup(server, message) {
     killProcessTree(server.pid);
     rmSync(serverStateFile, { force: true });
-    fail(`The server did not respond within ${startupTimeoutMs / 1000}s:\n${tailOfLog()}`);
+    fail(message);
 }
 
 async function isServing(url, timeoutMs) {
@@ -153,8 +165,33 @@ function findFreePort() {
     });
 }
 
+function stopIfProjectDevServer(pid) {
+    if (!isProjectDevServer(pid)) {
+        return false;
+    }
+    killProcessTree(pid);
+    return true;
+}
+
+function isProjectDevServer(pid) {
+    if (!Number.isInteger(pid)) {
+        return false;
+    }
+    const commandLine = readCommandLine(pid);
+    return isWindows
+        ? commandLine.toLowerCase().includes(nuxtCli.toLowerCase())
+        : commandLine.includes(nuxtCli);
+}
+
+function readCommandLine(pid) {
+    const [command, args] = isWindows
+        ? ["powershell.exe", ["-NoProfile", "-NonInteractive", "-Command", `(Get-CimInstance Win32_Process -Filter "ProcessId=${pid}").CommandLine`]]
+        : ["ps", ["-o", "args=", "-p", String(pid)]];
+    return spawnSync(command, args, { encoding: "utf8", windowsHide: true }).stdout ?? "";
+}
+
 function killProcessTree(pid) {
-    if (process.platform === "win32") {
+    if (isWindows) {
         spawnSync("taskkill", ["/pid", String(pid), "/t", "/f"], { stdio: "ignore", windowsHide: true });
     } else if (isProcessAlive(pid)) {
         process.kill(-pid, "SIGTERM");
@@ -171,7 +208,7 @@ function isProcessAlive(pid) {
 }
 
 function startupFailureMessage(exitCode) {
-    if (readFileSync(serverLogFile, "utf8").includes(nuxtDevLockMessage)) {
+    if (readServerLog().includes(nuxtDevLockMessage)) {
         return [
             "Another Nuxt dev server, probably the user's own, is already running in this project, and Nuxt allows only one per directory.",
             "Don't stop it or bypass Nuxt's lock with NUXT_IGNORE_LOCK.",
@@ -182,7 +219,15 @@ function startupFailureMessage(exitCode) {
 }
 
 function tailOfLog() {
-    return readFileSync(serverLogFile, "utf8").trimEnd().split(/\r?\n/).slice(-logLinesShownOnFailure).join("\n");
+    return readServerLog()
+        .split(/\r?\n|\r/)
+        .filter((line) => !nuxtProgressLinePattern.test(line))
+        .slice(-logLinesShownOnFailure)
+        .join("\n");
+}
+
+function readServerLog() {
+    return stripVTControlCharacters(readFileSync(serverLogFile, "utf8")).trimEnd();
 }
 
 function parseArgumentsOrExit(config) {

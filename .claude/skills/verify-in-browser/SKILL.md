@@ -31,7 +31,8 @@ The dev server hot-reloads. After you edit a file, run `browse.mjs` again; no re
 - `start --no-api-mocks` runs the dev server without the API mocks, the same as `pnpm dev:no-api-mocks`, so it calls the real APIs with the credentials and settings from `.env`. Use it only when the user asks to see real data. Real data changes, so don't assert exact names or counts. The script warns if there is no `.env`. In this mode the server log has no "answered by the API mocks" line. The repositories route caches responses for five minutes, and in this mode the cache is kept on disk under `.nuxt/cache/`, so it survives restarts. To see fresh data sooner, stop the server, delete `.nuxt/cache/`, and start it again.
 - `start` fails if a server in the other mode is already running. Stop that one first.
 - `status` reports whether the server is up, where, and in which mode.
-- `stop` kills the server's whole process tree.
+- `stop` kills the server's whole process tree. It, and `start`, kill the process recorded in `.playwright/server.json` only if it is still this project's Nuxt dev server, so a stale file left by a crash or a reboot never takes down an unrelated process that reused the PID.
+- If the server fails to build, `start` stops it and prints the end of the log with Nuxt's progress lines left out.
 
 ## 3. Look at a page
 

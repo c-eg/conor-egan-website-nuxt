@@ -90,7 +90,7 @@ Prefer role-based locators. They match the ARIA snapshot output, so you can copy
 
 - Navigation: `button "Toggle navigation menu"` (below `768px` only; it exposes `aria-expanded`, which `getByRole`'s `expanded` option matches), `link "Home"`, `link "Projects"`.
 - Home: `heading "I'm Conor Egan"` (level 1), `link "LinkedIn icon"`, `link "GitHub icon"`.
-- Projects: `heading "Here are some of my projects"` (level 1), `combobox "Filter"` (language names plus `All`), and `combobox "Sort"` (the options in `app/utils/repositories/repository-sort-options.ts`). Each repository is a level 2 heading wrapping a link whose name ends in "Opens in a new tab".
+- Projects: `heading "Here are some of my projects"` (level 1), `combobox "Filter"` (language names plus `All`), and `combobox "Sort"` (the options in `app/utils/repositories/repository-sort-options.ts`). Each repository is a level 2 heading wrapping a link whose name ends in "Opens in a new tab". While the repositories load, the page shows skeleton placeholders and a `status` "Loading projects...". If they fail to load, it shows an `alert` containing `heading "Something went wrong"` (level 1).
 
 ## Repository data
 
@@ -110,7 +110,7 @@ If a change needs data the fixtures don't cover, edit the fixtures or add a hand
   ```js
   await page.route("**/api/github/repositories/**", (route) => route.fulfill({ status: 502 }));
   await page.getByRole("link", { name: "Projects" }).click();
-  await page.getByText("There was an error loading the projects.").waitFor();
+  await page.getByRole("alert").getByRole("heading", { name: "Something went wrong" }).waitFor();
   ```
   Faked 4xx and 5xx responses still appear under Problems and set exit code 1. Nuxt retries a failed GET once, so a faked error is listed twice.
 - Repository and social links open in new tabs and lead off the site. Check their `href` with `getAttribute("href")` instead of clicking them.
